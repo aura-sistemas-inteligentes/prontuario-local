@@ -32,7 +32,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+ )
 
 @app.exception_handler(ResponseValidationError)
 async def response_validation_exception_handler(request, exc):
@@ -42,7 +42,7 @@ async def response_validation_exception_handler(request, exc):
 # SEGURANÇA HTTP
 security = HTTPBearer()
 
-# MODELOS DE DADOS
+# MODELOS DE 
 
 # MODELO DE USUARIO - P CADASTRO 
 class UsuarioCadastro(BaseModel):
@@ -103,7 +103,7 @@ class ClienteResponse(Cliente):
 
 # MODELO DE ATENDIMENTO
 class Atendimento(BaseModel):
-    data_atendimento: datetime
+    data_atendimento: date
     conteudo: str = Field(..., min_length=5, max_length=5000)
     duracao_minutos: int = Field(..., ge=15, le=480)
 
@@ -111,6 +111,14 @@ class AtendimentoResponse(Atendimento):
     id: int
     cliente_id: int
     data_registro: datetime
+
+class SessaoResponse(BaseModel):
+    id: int
+    cliente_id: int
+    data_sessao: date
+    conteudo: str
+    duracao_minutos: int
+
 
 # FUNÇÕES AUXILIARES
 
@@ -159,7 +167,7 @@ def criar_tabelas():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             usuario_id INTEGER NOT NULL,
             cliente_id INTEGER NOT NULL,
-            data_atendimento DATETIME NOT NULL,
+            data_atendimento DATE NOT NULL,
             conteudo TEXT NOT NULL,
             duracao_minutos INTEGER NOT NULL,
             data_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -349,17 +357,16 @@ def recuperar_senha(recuperacao: RecuperacaoSenha):
     
 # ROTAS DE CLIENTES
 
-@router.get("/cliente/", response_model=List[ClienteResponse])
+@router.get("/clientes/", response_model=List[ClienteResponse])
 def listar_clientes(usuario_atual: dict = Depends(obter_usuario_atual)):
-    """Lista de clientes do usuário autenticado"""
+    """Lista todos os clientes do usuário autenticado"""
     conn = obter_conexao()
     cursor = conn.cursor()
-    cursor.execute(
-        "SELECT * FROM clientes WHERE usuario_id = ? AND status = 'ativo' ORDER BY nome_completo",
-        (usuario_atual['usuario_id'],)
-    )
+    
+    cursor.execute("SELECT * FROM clientes WHERE usuario_id = ? AND status = 'ativo' ORDER BY nome_completo", (usuario_atual['usuario_id'],))
     clientes = cursor.fetchall()
     conn.close()
+    
     return [formatar_cliente(cliente) for cliente in clientes]
 
 @router.post("/clientes/", response_model=ClienteResponse, status_code=201)
@@ -433,7 +440,7 @@ def listar_atendimentos(cliente_id: int, usuario_atual: dict = Depends(obter_usu
         raise HTTPException(status_code=404, detail="Cliente não encontrado")
     
     cursor.execute(
-        "SELECT *FROM atendimentos WHERE cliente_id=? AND usuario_id = ? ODER BY data_atendimento DESC",
+        "SELECT * FROM atendimentos WHERE cliente_id=? AND usuario_id = ? ORDER BY data_atendimento DESC",
         (cliente_id, usuario_atual['usuario_id'])
     )
     atendimentos = cursor.fetchall()
@@ -476,7 +483,78 @@ def criar_atendimento(cliente_id: int, atendimento: Atendimento, usuario_atual: 
     dados_criados.update({'id': novo_id, 'cliente_id': cliente_id, 'data_registro': datetime.now().isoformat()})
     return dados_criados
 
+@router.get("/clientes/{cliente_id}/sessoes/", response_model=List[AtendimentoResponse])
+def listar_sessoes_cliente(cliente_id: int, usuario_atual: dict = Depends(obter_usuario_atual)):
+    """Lista todas as sessões de um cliente"""
+    conn = obter_conexao()
+    cursor = conn.cursor()
+    
+    # VERIFICA SE O CLIENTE PERTENCE AO USUARIO
+    cursor.execute(
+        "SELECT id FROM clientes WHERE id = ? AND usuario_id = ?",
+        (cliente_id, usuario_atual['usuario_id'])
+    )
+    if not cursor.fetchone():
+        conn.close()
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+    
+    cursor.execute("SELECT * FROM atendimentos WHERE cliente_id = ? AND usuario_id = ? ORDER BY data_atendimento DESC", (cliente_id, usuario_atual['usuario_id']))
+    sessoes = cursor.fetchall()
+    conn.close()
+    
+    return [formatar_atendimento(sessao) for sessao in sessoes]
+
+
+@router.post("/clientes/{cliente_id}/sessoes/", response_model=AtendimentoResponse, status_code=201)
+def criar_sessao_cliente(cliente_id: int, sessao: Atendimento, usuario_atual: dict = Depends(obter_usuario_atual)):
+    """Cria uma nova sessão para um cliente"""
+    conn = obter_conexao()
+    cursor = conn.cursor()
+    
+    # VERIFICA SE O CLIENTE PERTENCE AO USUARIO
+    cursor.execute(
+        "SELECT id FROM clientes WHERE id = ? AND usuario_id = ?",
+        (cliente_id, usuario_atual['usuario_id'])
+    )
+    if not cursor.fetchone():
+        conn.close()
+        raise HTTPException(status_code=404, detail="Cliente não encontrado")
+    
+    try:
+        cursor.execute(
+            """INSERT INTO atendimentos (usuario_id, cliente_id, data_atendimento, conteudo, duracao_minutos, data_registro)
+               VALUES (?, ?, ?, ?, ?, ?)""",
+            (usuario_atual['usuario_id'], cliente_id, sessao.data_atendimento, sessao.conteudo, sessao.duracao_minutos, datetime.now().isoformat())
+        )
+        conn.commit()
+        sessao_id = cursor.lastrowid
+    except sqlite3.Error as e:
+        conn.close()
+        raise HTTPException(status_code=400, detail=f"Erro ao criar sessão: {str(e)}")
+    finally:
+        conn.close()
+    
+    dados_criados = sessao.model_dump()
+    dados_criados.update({'id': sessao_id, 'cliente_id': cliente_id, 'data_registro': datetime.now().isoformat()})
+    return dados_criados
+
+
+@router.get("/clientes/aniversariantes-proximos-30-dias/", response_model=List[ClienteResponse])
+def listar_aniversariantes(usuario_atual: dict = Depends(obter_usuario_atual)):
+    """Lista clientes com aniversário nos próximos 30 dias"""
+    conn = obter_conexao()
+    cursor = conn.cursor()
+    
+    cursor.execute("""
+        SELECT * FROM clientes 
+        WHERE usuario_id = ? AND status = 'ativo'
+        ORDER BY strftime('%m-%d', data_nascimento)
+    """, (usuario_atual['usuario_id'],))
+    clientes = cursor.fetchall()
+    conn.close()
+    
+    return [formatar_cliente(cliente) for cliente in clientes]
+
 # INICIALIZAÇÃO  -- Para rodar: uvicorn main:app --reload
 app.include_router(router)
 criar_tabelas()
-

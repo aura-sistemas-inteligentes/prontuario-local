@@ -1,0 +1,557 @@
+/* ===== VARIÁVEIS E RESET ===== */
+:root {
+    --primary-color: #6366f1;
+    --primary-dark: #4f46e5;
+    --secondary-color: #8b5cf6;
+    --success-color: #10b981;
+    --danger-color: #ef4444;
+    --warning-color: #f59e0b;
+    --gray-50: #f9fafb;
+    --gray-100: #f3f4f6;
+    --gray-200: #e5e7eb;
+    --gray-300: #d1d5db;
+    --gray-400: #9ca3af;
+    --gray-500: #6b7280;
+    --gray-600: #4b5563;
+    --gray-700: #374151;
+    --gray-800: #1f2937;
+    --gray-900: #111827;
+    --border-radius: 8px;
+    --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    --box-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    background-color: var(--gray-50);
+    color: var(--gray-800);
+    line-height: 1.6;
+}
+
+/* ===== PÁGINA DE LOGIN ===== */
+.container-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    padding: 20px;
+}
+
+.login-box {
+    background: white;
+    padding: 40px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow-lg);
+    width: 100%;
+    max-width: 400px;
+}
+
+.login-box h1 {
+    color: var(--primary-color);
+    margin-bottom: 5px;
+    text-align: center;
+    font-size: 28px;
+}
+
+.subtitle {
+    text-align: center;
+    color: var(--gray-500);
+    margin-bottom: 30px;
+    font-size: 14px;
+}
+
+/* ===== ABAS ===== */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    border-bottom: 2px solid var(--gray-200);
+}
+
+.tab-btn {
+    flex: 1;
+    padding: 12px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--gray-500);
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.tab-btn:hover {
+    color: var(--primary-color);
+}
+
+.tab-btn.active {
+    color: var(--primary-color);
+    border-bottom-color: var(--primary-color);
+}
+
+.aba {
+    display: none;
+}
+
+.aba.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* ===== FORMULÁRIOS ===== */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: var(--gray-700);
+    font-size: 14px;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--gray-300);
+    border-radius: var(--border-radius);
+    font-size: 14px;
+    transition: border-color 0.3s ease;
+    font-family: inherit;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+@media (max-width: 600px) {
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ===== BOTÕES ===== */
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-logout {
+    padding: 12px 24px;
+    border: none;
+    border-radius: var(--border-radius);
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 14px;
+}
+
+.btn-primary {
+    width: 100%;
+    background-color: var(--primary-color);
+    color: white;
+    margin-top: 10px;
+}
+
+.btn-primary:hover {
+    background-color: var(--primary-dark);
+    box-shadow: var(--box-shadow-lg);
+}
+
+.btn-secondary {
+    background-color: var(--gray-200);
+    color: var(--gray-800);
+}
+
+.btn-secondary:hover {
+    background-color: var(--gray-300);
+}
+
+.btn-danger {
+    background-color: var(--danger-color);
+    color: white;
+}
+
+.btn-danger:hover {
+    background-color: #dc2626;
+}
+
+.btn-logout {
+    background-color: var(--danger-color);
+    color: white;
+    padding: 8px 16px;
+    font-size: 12px;
+}
+
+.btn-logout:hover {
+    background-color: #dc2626;
+}
+
+.btn-voltar {
+    background: none;
+    border: none;
+    color: var(--primary-color);
+    cursor: pointer;
+    font-weight: 500;
+    margin-bottom: 15px;
+}
+
+/* ===== MENSAGENS ===== */
+.mensagem {
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: var(--border-radius);
+    display: none;
+    font-size: 14px;
+}
+
+.mensagem.sucesso {
+    background-color: #d1fae5;
+    color: #065f46;
+    border-left: 4px solid var(--success-color);
+    display: block;
+}
+
+.mensagem.erro {
+    background-color: #fee2e2;
+    color: #7f1d1d;
+    border-left: 4px solid var(--danger-color);
+    display: block;
+}
+
+.mensagem.info {
+    background-color: #dbeafe;
+    color: #0c2340;
+    border-left: 4px solid #3b82f6;
+    display: block;
+}
+
+/* ===== DASHBOARD ===== */
+.container-dashboard {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.header {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+    color: white;
+    padding: 20px;
+    box-shadow: var(--box-shadow-lg);
+}
+
+.header-content {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header h1 {
+    font-size: 24px;
+}
+
+.header-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.main-content {
+    display: flex;
+    flex: 1;
+    max-width: 1400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.sidebar {
+    width: 250px;
+    background: white;
+    border-right: 1px solid var(--gray-200);
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+}
+
+.nav-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.nav-btn {
+    padding: 12px 16px;
+    background: none;
+    border: none;
+    border-left: 3px solid transparent;
+    text-align: left;
+    cursor: pointer;
+    color: var(--gray-600);
+    transition: all 0.3s ease;
+    border-radius: 0;
+}
+
+.nav-btn:hover {
+    background-color: var(--gray-100);
+    color: var(--primary-color);
+}
+
+.nav-btn.active {
+    background-color: var(--gray-100);
+    color: var(--primary-color);
+    border-left-color: var(--primary-color);
+}
+
+.content {
+    flex: 1;
+    padding: 30px;
+    overflow-y: auto;
+}
+
+.secao {
+    display: none;
+}
+
+.secao.active {
+    display: block;
+    animation: fadeIn 0.3s ease;
+}
+
+.secao h2 {
+    color: var(--gray-800);
+    margin-bottom: 20px;
+    font-size: 24px;
+}
+
+.secao h3 {
+    color: var(--gray-700);
+    margin-top: 20px;
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+/* ===== LISTA DE CLIENTES ===== */
+.busca-container {
+    margin-bottom: 20px;
+}
+
+.busca-container input {
+    width: 100%;
+    max-width: 300px;
+}
+
+.lista-clientes {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.cliente-card {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-left: 4px solid var(--primary-color);
+}
+
+.cliente-card:hover {
+    box-shadow: var(--box-shadow-lg);
+    transform: translateY(-2px);
+}
+
+.cliente-card h3 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.cliente-card p {
+    color: var(--gray-600);
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.cliente-info {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 20px;
+}
+
+.cliente-info p {
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.cliente-header {
+    margin-bottom: 20px;
+}
+
+/* ===== FORMULÁRIO DE ATENDIMENTO ===== */
+.form-atendimento {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 20px;
+}
+
+.form-atendimento textarea {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* ===== LISTA DE ATENDIMENTOS ===== */
+.lista-atendimentos {
+    background: white;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    overflow: hidden;
+}
+
+.atendimento-item {
+    padding: 20px;
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.atendimento-item:last-child {
+    border-bottom: none;
+}
+
+.atendimento-item h4 {
+    color: var(--primary-color);
+    margin-bottom: 8px;
+}
+
+.atendimento-item p {
+    color: var(--gray-600);
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+/* ===== CONFIGURAÇÕES ===== */
+.config-item {
+    background: white;
+    padding: 20px;
+    border-radius: var(--border-radius);
+    box-shadow: var(--box-shadow);
+    margin-bottom: 20px;
+}
+
+.config-item h3 {
+    margin-top: 0;
+}
+
+.info-texto {
+    color: var(--gray-500);
+    font-size: 13px;
+    margin-top: 10px;
+}
+
+/* ===== CARREGAMENTO ===== */
+.carregando {
+    text-align: center;
+    color: var(--gray-500);
+    padding: 40px;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+    .main-content {
+        flex-direction: column;
+    }
+
+    .sidebar {
+        width: 100%;
+        border-right: none;
+        border-bottom: 1px solid var(--gray-200);
+        padding: 10px;
+    }
+
+    .nav-menu {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .nav-btn {
+        white-space: nowrap;
+    }
+
+    .content {
+        padding: 20px;
+    }
+
+    .login-box {
+        padding: 30px 20px;
+    }
+
+    .header-content {
+        flex-direction: column;
+        gap: 15px;
+    }
+
+    .lista-clientes {
+        grid-template-columns: 1fr;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 480px) {
+    .login-box {
+        padding: 20px;
+    }
+
+    .login-box h1 {
+        font-size: 20px;
+    }
+
+    .tabs {
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        font-size: 12px;
+        padding: 10px;
+    }
+
+    .content {
+        padding: 15px;
+    }
+
+    .secao h2 {
+        font-size: 18px;
+    }
+}
