@@ -12,7 +12,7 @@
             <h1>Prontuário Local</h1>
             <p class="subtitle">Gerenciamento de Atendimentos</p>
 
-            <!-- Abas: Login / Cadastro -->
+            <!-- ABAS -->
             <div class="tabs">
                 <button class="tab-btn active" onclick="mostrarAba('login')">Login</button>
                 <button class="tab-btn" onclick="mostrarAba('cadastro')">Cadastro</button>
@@ -21,74 +21,64 @@
 
             <!-- ABA: LOGIN -->
             <div id="login" class="aba active">
-                <form onsubmit="handleLogin(event)">
+                <form id="form-login" onsubmit="handleLogin(event)">
                     <div class="form-group">
-                        <label for="login-username">Username:</label>
+                        <label>Username:</label>
                         <input type="text" id="login-username" placeholder="Seu username" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="login-senha">Senha:</label>
+                        <label>Senha:</label>
                         <input type="password" id="login-senha" placeholder="Sua senha" required>
                     </div>
-
-                    <button type="submit" class="btn-primary">Entrar</button>
+                    <button type="submit" class="btn-primary" id="btn-login">Entrar</button>
                 </form>
                 <div id="login-mensagem" class="mensagem"></div>
             </div>
 
             <!-- ABA: CADASTRO -->
             <div id="cadastro" class="aba">
-                <form onsubmit="handleCadastro(event)">
+                <form id="form-cadastro" onsubmit="handleCadastro(event)">
                     <div class="form-group">
-                        <label for="cadastro-nome">Nome Completo:</label>
+                        <label>Nome Completo:</label>
                         <input type="text" id="cadastro-nome" placeholder="Seu nome completo" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="cadastro-username">Username:</label>
+                        <label>Username:</label>
                         <input type="text" id="cadastro-username" placeholder="Escolha um username" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="cadastro-senha">Senha:</label>
+                        <label>Senha:</label>
                         <input type="password" id="cadastro-senha" placeholder="Mínimo 6 caracteres" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="cadastro-pergunta">Pergunta de Segurança:</label>
-                        <input type="text" id="cadastro-pergunta" placeholder="Ex: Qual é o nome do seu pet?" required>
+                        <label>Pergunta de Segurança:</label>
+                        <input type="text" id="cadastro-pergunta" placeholder="Ex: Qual seu pet?" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="cadastro-resposta">Resposta:</label>
+                        <label>Resposta:</label>
                         <input type="text" id="cadastro-resposta" placeholder="Sua resposta" required>
                     </div>
-
-                    <button type="submit" class="btn-primary">Criar Conta</button>
+                    <button type="submit" class="btn-primary" id="btn-cadastro">Criar Conta</button>
                 </form>
                 <div id="cadastro-mensagem" class="mensagem"></div>
             </div>
 
-            <!-- ABA: RECUPERAÇÃO DE SENHA -->
+            <!-- ABA: RECUPERAR SENHA -->
             <div id="recuperacao" class="aba">
-                <form onsubmit="handleRecuperarSenha(event)">
+                <form id="form-recuperacao" onsubmit="handleRecuperarSenha(event)">
                     <div class="form-group">
-                        <label for="recuperacao-username">Username:</label>
-                        <input type="text" id="recuperacao-username" placeholder="Seu username" required>
+                        <label>Username:</label>
+                        <input type="text" id="recuperar-username" placeholder="Seu username" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="recuperacao-resposta">Resposta da Pergunta de Segurança:</label>
-                        <input type="text" id="recuperacao-resposta" placeholder="Sua resposta" required>
+                        <label>Resposta da Pergunta:</label>
+                        <input type="text" id="recuperar-resposta" placeholder="Sua resposta" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="recuperacao-nova-senha">Nova Senha:</label>
-                        <input type="password" id="recuperacao-nova-senha" placeholder="Mínimo 6 caracteres" required>
+                        <label>Nova Senha:</label>
+                        <input type="password" id="recuperar-nova-senha" placeholder="Mínimo 6 caracteres" required>
                     </div>
-
-                    <button type="submit" class="btn-primary">Redefinir Senha</button>
+                    <button type="submit" class="btn-primary" id="btn-recuperar">Alterar Senha</button>
                 </form>
                 <div id="recuperacao-mensagem" class="mensagem"></div>
             </div>
@@ -97,6 +87,5 @@
 
     <script src="auth.js"></script>
     <script src="login-script.js"></script>
-
 </body>
 </html>

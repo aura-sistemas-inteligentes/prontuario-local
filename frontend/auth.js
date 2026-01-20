@@ -154,11 +154,14 @@ function limparMensagem(elementoId) {
 function exibirErro(elementoId, mensagem) {
     const elemento = document.getElementById(elementoId);
     if (elemento) {
-        elemento.textContent = `❌ ${mensagem}`;
+        // Se mensagem for object, converte para string
+        const textoMensagem = typeof mensagem === 'object' ? JSON.stringify(mensagem) : mensagem;
+        elemento.textContent = `❌ ${textoMensagem}`;
         elemento.className = 'erro';
     }
     console.error('Erro:', mensagem);
 }
+
 
 function exibirSucesso(elementoId, mensagem) {
     const elemento = document.getElementById(elementoId);

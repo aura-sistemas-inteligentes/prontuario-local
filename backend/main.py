@@ -46,11 +46,11 @@ security = HTTPBearer()
 
 # MODELO DE USUARIO - P CADASTRO 
 class UsuarioCadastro(BaseModel):
-    username: str = Field(..., min_length=3, max_length=50)
-    nome: str = Field(..., min_length=3, max_length=150)
-    senha: str = Field(..., min_length=6)
-    pergunta_seguranca: str = Field(..., min_length=5)
-    resposta_seguranca: str = Field(..., min_length=2)
+    username: str # = Field(..., min_length=3, max_length=50)
+    nome: str # = Field(..., min_length=3, max_length=150)
+    senha: str # = Field(..., min_length=6)
+    pergunta_seguranca: str # = Field(..., min_length=5)
+    resposta_seguranca: str # = Field(..., min_length=2)
 
     @field_validator('username')
     @classmethod
@@ -83,9 +83,9 @@ class TokenResponse(BaseModel):
 
 # MODELO DE CLIENTE
 class Cliente(BaseModel):
-    nome_completo: str = Field(..., min_length=3, max_length=150)
+    nome_completo: str # = Field(..., min_length=3, max_length=150)
     email: str
-    telefone: str = Field(..., min_length=10, max_length=20)
+    telefone: str #  = Field(..., min_length=10, max_length=20)
     data_nascimento: date
     endereco: Optional[str] = None
 
@@ -152,8 +152,8 @@ def criar_tabelas():
             usuario_id INTEGER NOT NULL,
             codigo_cliente TEXT NOT NULL UNIQUE,
             nome_completo TEXT NOT NULL,
-            email TEXT NOT NULL UNIQUE,
-            telefone TEXT NOT NULL,
+            email TEXT UNIQUE,
+            telefone TEXT,
             data_nascimento DATE NOT NULL,
             endereco TEXT,
             status TEXT NOT NULL DEFAULT 'ativo',
@@ -175,6 +175,28 @@ def criar_tabelas():
             FOREIGN KEY (cliente_id) REFERENCES clientes (id)
         );
     ''')
+
+    # ============================================
+    # CRIAR ÍNDICES PARA PERFORMANCE
+    # ============================================
+    
+    # Índice para buscar clientes por usuário
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_clientes_usuario ON clientes(usuario_id)")
+    
+    # Índice para buscar atendimentos por usuário
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_atendimentos_usuario ON atendimentos(usuario_id)")
+    
+    # Índice para buscar atendimentos por cliente
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_atendimentos_cliente ON atendimentos(cliente_id)")
+    
+    # Índice composto para buscas mais rápidas
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_atendimentos_usuario_cliente ON atendimentos(usuario_id, cliente_id)")
+    
+    # Índice para ordenação por data
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_atendimentos_data ON atendimentos(data_atendimento DESC)")
+    
+    # Índice para buscar clientes por status
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_clientes_status ON clientes(status)")
 
     conn.commit()
     conn.close()
@@ -369,6 +391,48 @@ def listar_clientes(usuario_atual: dict = Depends(obter_usuario_atual)):
     
     return [formatar_cliente(cliente) for cliente in clientes]
 
+
+
+@router.get("/clientes/aniversariantes-proximos-30-dias/", response_model=List[ClienteResponse])
+def listar_aniversariantes(usuario_atual: dict = Depends(obter_usuario_atual)):
+    """Lista clientes com aniversário nos próximos 30 dias"""
+    conn = obter_conexao()
+    cursor = conn.cursor()
+    
+    hoje = date.today()
+    daqui_30_dias = hoje + timedelta(days=30)
+    
+    # Busca todos os clientes ativos
+    cursor.execute("""
+        SELECT * FROM clientes 
+        WHERE usuario_id = ? AND status = 'ativo'
+        ORDER BY strftime('%m-%d', data_nascimento)
+    """, (usuario_atual['usuario_id'],))
+    
+    clientes = cursor.fetchall()
+    conn.close()
+    
+    # Filtra apenas aniversariantes dos próximos 30 dias
+    aniversariantes = []
+    for cliente in clientes:
+        try:
+            data_nasc = datetime.strptime(cliente['data_nascimento'], '%Y-%m-%d').date()
+            # Próximo aniversário deste ano
+            proximo_aniv = data_nasc.replace(year=hoje.year)
+            
+            # Se já passou este ano, próximo é no ano que vem
+            if proximo_aniv < hoje:
+                proximo_aniv = proximo_aniv.replace(year=hoje.year + 1)
+            
+            # Se está nos próximos 30 dias, inclui
+            if hoje <= proximo_aniv <= daqui_30_dias:
+                aniversariantes.append(formatar_cliente(cliente))
+        except Exception as e:
+            print(f"Erro ao processar cliente {cliente['id']}: {e}")
+            continue
+    
+    return aniversariantes
+
 @router.post("/clientes/", response_model=ClienteResponse, status_code=201)
 def cadastrar_cliente(cliente: Cliente, usuario_atual: dict = Depends(obter_usuario_atual)):
     """Cadastra um novo Cliente"""
@@ -539,22 +603,8 @@ def criar_sessao_cliente(cliente_id: int, sessao: Atendimento, usuario_atual: di
     return dados_criados
 
 
-@router.get("/clientes/aniversariantes-proximos-30-dias/", response_model=List[ClienteResponse])
-def listar_aniversariantes(usuario_atual: dict = Depends(obter_usuario_atual)):
-    """Lista clientes com aniversário nos próximos 30 dias"""
-    conn = obter_conexao()
-    cursor = conn.cursor()
-    
-    cursor.execute("""
-        SELECT * FROM clientes 
-        WHERE usuario_id = ? AND status = 'ativo'
-        ORDER BY strftime('%m-%d', data_nascimento)
-    """, (usuario_atual['usuario_id'],))
-    clientes = cursor.fetchall()
-    conn.close()
-    
-    return [formatar_cliente(cliente) for cliente in clientes]
-
 # INICIALIZAÇÃO  -- Para rodar: uvicorn main:app --reload
 app.include_router(router)
 criar_tabelas()
+
+

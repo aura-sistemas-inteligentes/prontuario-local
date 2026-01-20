@@ -217,10 +217,18 @@ html, body {
 .btn-voltar {
     background: none;
     border: none;
-    color: var(--primary-color);
+    color: white;
     cursor: pointer;
     font-weight: 500;
-    margin-bottom: 15px;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: var(--border-radius);
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.btn-voltar:hover {
+    background-color: rgba(255, 255, 255, 0.2);
 }
 
 /* ===== MENSAGENS ===== */
